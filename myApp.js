@@ -18,15 +18,6 @@ var app = express();              // Do Not Edit
 // Install the package, then require it.
 const helmet = require('helmet');
 
-// NOTE: the PHP 4.2.0 is just to throw people off
-app.use(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0'}));
-app.use(helmet.frameguard({ action: 'deny' }));
-app.use(helmet.xssFilter());
-app.use(helmet.noSniff());
-app.use(helmet.ieNoOpen());
-app.use(helmet.hsts({maxAge: 90*24*60*60*1000, force:true}));
-
-
 /** 2) Hide potentially dangerous information - `helmet.hidePoweredBy()` */
 
 // Hackers can exploit known vulnerabilities in Express/Node
@@ -39,7 +30,8 @@ app.use(helmet.hsts({maxAge: 90*24*60*60*1000, force:true}));
 
 // Use `helmet.hidePoweredBy()``
 
-helmet.hidePoweredBy();
+// NOTE: the PHP 4.2.0 is just to throw people off
+app.use(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0'}));
 
 /** 3) Mitigate the risk of clickjacking - `helmet.frameguard()` */
 
@@ -54,9 +46,8 @@ helmet.hidePoweredBy();
 // We don't need our app to be framed, so you should use `helmet.frameguard()`
 // passing to it the configuration object `{action: 'deny'}`
 
-helmet.frameguard();
+app.use(helmet.frameguard({ action: 'deny' }));
  
-
 /** 4) Mitigate the risk of XSS - `helmet.xssFilter()` */
 
 // Cross-site scripting (XSS) is a very frequent type of attack where malicious
@@ -77,8 +68,8 @@ helmet.frameguard();
 // It still has limited support.
 
 // Use `helmet.xssFilter()`
-helmet.xssFilter();
 
+app.use(helmet.xssFilter());
 
 /** 5) Avoid inferring the response MIME type - `helmet.noSniff()` */
 
@@ -91,8 +82,7 @@ helmet.xssFilter();
 
 // Use `helmet.noSniff()`
 
-helmet.noSniff();
-
+app.use(helmet.noSniff());
 
 /** 6) Prevent IE from opening *untrusted* HTML - `helmet.ieNoOpen()` */
 
@@ -105,7 +95,7 @@ helmet.noSniff();
 
 // Use `helmet.ieNoOpen()`
 
-helmet.ieNoOpen();
+app.use(helmet.ieNoOpen());
 
 /**  7) Ask browsers to access your site via HTTPS only - `helmet.hsts()` */
 
@@ -124,7 +114,7 @@ helmet.ieNoOpen();
 // policy we will intercept and restore the header, after inspecting it for testing.
 
 var ninetyDaysInMilliseconds = 90*24*60*60*1000;
-helmet.hsts();
+app.use(helmet.hsts({maxAge: ninetyDaysInMilliseconds, force:true}));
 
 
 //**Note**:
@@ -144,7 +134,7 @@ helmet.hsts();
 
 // Use `helmet.dnsPrefetchControl()`
 
-
+app.use(helmet.dnsPrefetchControl());
 
 /** 9) Disable Client-Side Caching - `helmet.noCache()` */
 
@@ -156,7 +146,7 @@ helmet.hsts();
 
 // Use helmet.noCache()
 
-
+app.use(helmet.noCache());
 
 /** 10) Content Security Policy - `helmet.contentSecurityPolicy()` */
 
@@ -186,6 +176,12 @@ helmet.hsts();
 // in the `"'self'"` keyword, the single quotes are part of the keyword itself, 
 // so it needs to be enclosed in **double quotes** to be working.
 
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", 'trusted-cdn.com']
+  }
+}))
 
 
 /** TIP: */ 
