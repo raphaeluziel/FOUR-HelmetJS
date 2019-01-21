@@ -19,7 +19,12 @@ var app = express();              // Do Not Edit
 const helmet = require('helmet');
 
 // NOTE: the PHP 4.2.0 is just to throw people off
-app.use(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0' })) 
+app.use(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0'}));
+app.use(helmet.frameguard({ action: 'deny' }));
+app.use(helmet.xssFilter());
+app.use(helmet.noSniff());
+app.use(helmet.ieNoOpen());
+app.use(helmet.hsts({maxAge: 90*24*60*60*1000, force:true}));
 
 
 /** 2) Hide potentially dangerous information - `helmet.hidePoweredBy()` */
@@ -49,6 +54,7 @@ helmet.hidePoweredBy();
 // We don't need our app to be framed, so you should use `helmet.frameguard()`
 // passing to it the configuration object `{action: 'deny'}`
 
+helmet.frameguard();
  
 
 /** 4) Mitigate the risk of XSS - `helmet.xssFilter()` */
@@ -71,7 +77,7 @@ helmet.hidePoweredBy();
 // It still has limited support.
 
 // Use `helmet.xssFilter()`
-
+helmet.xssFilter();
 
 
 /** 5) Avoid inferring the response MIME type - `helmet.noSniff()` */
@@ -85,6 +91,7 @@ helmet.hidePoweredBy();
 
 // Use `helmet.noSniff()`
 
+helmet.noSniff();
 
 
 /** 6) Prevent IE from opening *untrusted* HTML - `helmet.ieNoOpen()` */
@@ -98,7 +105,7 @@ helmet.hidePoweredBy();
 
 // Use `helmet.ieNoOpen()`
 
-
+helmet.ieNoOpen();
 
 /**  7) Ask browsers to access your site via HTTPS only - `helmet.hsts()` */
 
@@ -117,6 +124,7 @@ helmet.hidePoweredBy();
 // policy we will intercept and restore the header, after inspecting it for testing.
 
 var ninetyDaysInMilliseconds = 90*24*60*60*1000;
+helmet.hsts();
 
 
 //**Note**:
